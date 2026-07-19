@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-const distPath = '.output/public';
+const distPath = '.temp-output/public';
 
 console.log('Building project for GitHub Pages...');
 
@@ -15,7 +15,9 @@ const viteConfigPath = path.join(process.cwd(), 'vite.config.ts');
 const originalViteConfig = fs.readFileSync(viteConfigPath, 'utf-8');
 
 try {
-    const newConfig = originalViteConfig.replace('vite: {}', `vite: { base: '/OfferMonitor-Lovable-Final/' }`);
+    const newConfig = originalViteConfig
+        .replace('vite: {}', `vite: { base: '/OfferMonitor-Lovable-Final/' }`)
+        .replace('tanstackStart: {', `nitro: { output: { dir: '.temp-output', publicDir: '.temp-output/public' } },\n  tanstackStart: {`);
     fs.writeFileSync(viteConfigPath, newConfig);
     execSync('npm run build', { stdio: 'inherit' });
 } catch (error) {
@@ -36,10 +38,10 @@ console.log('Deploying to GitHub Pages using plumbing to avoid file locks...');
 
 try {
     // 1. Create a temporary index file
-    const tempIndex = '.git/temp_index';
+    const tempIndex = path.join(process.cwd(), '.git/temp_index');
     
     // 2. Add the public folder to the temporary index
-    execSync(`git --work-tree=${distPath} add --all`, { 
+    execSync(`git --git-dir=.git --work-tree=${distPath} add --all`, { 
         env: { ...process.env, GIT_INDEX_FILE: tempIndex },
         stdio: 'inherit' 
     });
