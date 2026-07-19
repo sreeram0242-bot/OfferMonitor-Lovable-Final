@@ -47,7 +47,12 @@ function MenuPage() {
     e.preventDefault();
     const p = parseFloat(price);
     const cp = costPrice.trim() ? parseFloat(costPrice) : undefined;
-    if (!name.trim() || !Number.isFinite(p) || p <= 0) { toast.error("Enter name and price"); return; }
+    const n = name.trim();
+    if (!n || !Number.isFinite(p) || p <= 0) { toast.error("Enter name and price"); return; }
+    if (menu.some(m => m.name.toLowerCase() === n.toLowerCase() && m.id !== editingId)) {
+      toast.error("An item with this name already exists");
+      return;
+    }
     if (editingId) {
       persist(menu.map((m) => m.id === editingId ? { ...m, name: name.trim(), price: p, costPrice: cp, category: itemCat || undefined } : m));
       toast.success("Item updated");

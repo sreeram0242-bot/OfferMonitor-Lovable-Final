@@ -22,9 +22,9 @@ export const DEFAULT_CATEGORIES = [
 const CATEGORIES_KEY = "ek_categories_v1";
 const MENU_KEY = "ek_menu_v1";
 const BILLS_KEY = "ek_bills_v1";
+const DELETED_BILLS_KEY = "ek_deleted_bills_v1";
 const EXPENSES_KEY = "ek_expenses_v1";
 const SETTINGS_KEY = "ek_settings_v1";
-
 
 export const STREAK_TARGET = 6;
 
@@ -68,6 +68,8 @@ export type Bill = {
   tableName?: string;
   orderNo?: number;
 };
+
+export type DeletedBill = Bill & { deletedAt: string };
 
 function isBrowser() {
   return typeof window !== "undefined";
@@ -212,8 +214,31 @@ export function addBill(bill: Bill) {
   all.push(bill);
   saveBills(all);
 }
+
+export function loadDeletedBills(): DeletedBill[] {
+  if (!isBrowser()) return [];
+  try {
+    const raw = localStorage.getItem(DELETED_BILLS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function clearDeletedBills() {
+  if (!isBrowser()) return;
+  localStorage.removeItem(DELETED_BILLS_KEY);
+}
+
 export function deleteBill(id: string) {
-  saveBills(loadBills().filter((b) => b.id !== id));
+  const all = loadBills();
+  const billToDelete = all.find((b) => b.id === id);
+  if (billToDelete) {
+    const deletedList = loadDeletedBills();
+    deletedList.push({ ...billToDelete, deletedAt: new Date().toISOString() });
+    localStorage.setItem(DELETED_BILLS_KEY, JSON.stringify(deletedList));
+  }
+  saveBills(all.filter((b) => b.id !== id));
 }
 
 export function loadExpenses(): Expense[] {
@@ -380,6 +405,7 @@ const BACKUP_KEYS = [
   CATEGORIES_KEY,
   MENU_KEY,
   BILLS_KEY,
+  DELETED_BILLS_KEY,
   EXPENSES_KEY,
   SETTINGS_KEY,
 ] as const;

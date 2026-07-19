@@ -20,9 +20,12 @@ import {
   formatDate,
   newId,
   todayISO,
+  loadDeletedBills,
+  clearDeletedBills,
   type Bill,
   type Expense,
   type AppSettings,
+  type DeletedBill,
 } from "@/lib/loyalty";
 
 type Period = "daily" | "monthly" | "yearly" | "custom";
@@ -51,6 +54,7 @@ function RevenuePage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [deletedBills, setDeletedBills] = useState<DeletedBill[]>([]);
 
   const [expDate, setExpDate] = useState(todayISO());
   const [expDesc, setExpDesc] = useState("");
@@ -60,6 +64,7 @@ function RevenuePage() {
     setBills(loadBills());
     setExpenses(loadExpenses());
     setSettings(loadSettings());
+    setDeletedBills(loadDeletedBills());
   }
   useEffect(() => { refresh(); }, []);
 
@@ -281,6 +286,71 @@ function RevenuePage() {
 
         </section>
       )}
+
+      {/* Security: Deleted Bills Log */}
+      <section className="card-menu p-5 border-destructive/20 mt-8">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-display text-xl text-destructive flex items-center gap-2">
+            <span>🛡️</span> Security: Deleted Bills Log
+          </h2>
+          {deletedBills.length > 0 && (
+            <button
+              onClick={() => {
+                if (confirm("Are you sure you want to clear the deleted bills log permanently?")) {
+                  clearDeletedBills();
+                  refresh();
+                  toast.success("Log cleared");
+                }
+              }}
+              className="text-xs text-muted-foreground hover:text-destructive hover:underline"
+            >
+              Clear Log
+            </button>
+          )}
+        </div>
+        
+        {deletedBills.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">No bills have been deleted.</p>
+        ) : (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {deletedBills.sort((a, b) => b.deletedAt.localeCompare(a.deletedAt)).map(b => (
+              <div key={b.id} className="card-soft p-4 border-destructive/30">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="text-xs font-bold text-destructive">
+                      Deleted: {new Date(b.deletedAt).toLocaleString()}
+                    </div>
+                    <div className="text-[11px] font-semibold text-muted-foreground mt-0.5">
+                      Original Date: {formatDate(b.date)} • Order #{b.orderNo || "?"}
+                    </div>
+                  </div>
+                  <div className="font-display text-lg text-primary">₹{b.total}</div>
+                </div>
+                {b.name && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Customer: {b.name} ({b.phone})
+                  </div>
+                )}
+                <div className="mt-2 text-xs text-muted-foreground pt-2 border-t border-border space-y-1">
+                  {b.items.map((it, idx) => (
+                    <div key={idx} className="flex justify-between">
+                      <span>{it.qty}x {it.name}</span>
+                      <span>₹{it.price * it.qty}</span>
+                    </div>
+                  ))}
+                  {b.freeItem && (
+                    <div className="flex justify-between text-accent">
+                      <span>1x {b.freeItem.name}</span>
+                      <span>Free</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
     </div>
   );
 }
