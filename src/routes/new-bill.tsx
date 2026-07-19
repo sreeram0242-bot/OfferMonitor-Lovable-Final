@@ -127,7 +127,7 @@ function NewBill() {
       toast.error("Name and phone are required.");
       return;
     }
-    if (settings.tablesEnabled && !tableName) {
+    if (settings.tablesEnabled && settings.tableNames.length > 0 && !tableName) {
       toast.error("Select a table.");
       return;
     }
