@@ -123,9 +123,15 @@ function NewBill() {
   function save() {
     if (!settings) return;
     if (items.length === 0) { toast.error("Add at least one item."); return; }
-    if (settings.requireCustomerDetails && (!name.trim() || !phone.trim())) {
-      toast.error("Name and phone are required.");
-      return;
+    if (settings.requireCustomerDetails) {
+      if (!name.trim() || !phone.trim()) {
+        toast.error("Name and phone are required.");
+        return;
+      }
+      if (phone.trim().length !== 10) {
+        toast.error("Phone number must be exactly 10 digits.");
+        return;
+      }
     }
     if (settings.tablesEnabled && settings.tableNames.length > 0 && !tableName) {
       toast.error("Select a table.");

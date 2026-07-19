@@ -85,7 +85,10 @@ export function categoryFromId(id: string): string {
   return "Other";
 }
 export function getCategoryOf(item: MenuItem): string {
-  return item.category?.trim() || categoryFromId(item.id);
+  if (item.category && item.category.trim()) return item.category.trim();
+  // Only apply legacy ID-based categorization to original seed data (e.g., s1, b2, mo3)
+  if (/^[a-z]+[0-9]+$/.test(item.id)) return categoryFromId(item.id);
+  return "Other";
 }
 
 export function loadCategories(): string[] {
