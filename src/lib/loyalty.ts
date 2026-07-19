@@ -101,7 +101,8 @@ export function loadCategories(): string[] {
       localStorage.setItem(CATEGORIES_KEY, JSON.stringify(DEFAULT_CATEGORIES));
       return DEFAULT_CATEGORIES;
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : DEFAULT_CATEGORIES;
   } catch {
     return DEFAULT_CATEGORIES;
   }
@@ -186,7 +187,8 @@ export function loadMenu(): MenuItem[] {
       localStorage.setItem(MENU_KEY, JSON.stringify(DEFAULT_MENU));
       return DEFAULT_MENU;
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : DEFAULT_MENU;
   } catch {
     return DEFAULT_MENU;
   }
@@ -200,7 +202,8 @@ export function loadBills(): Bill[] {
   if (!isBrowser()) return [];
   try {
     const raw = localStorage.getItem(BILLS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
@@ -219,7 +222,8 @@ export function loadDeletedBills(): DeletedBill[] {
   if (!isBrowser()) return [];
   try {
     const raw = localStorage.getItem(DELETED_BILLS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
@@ -245,7 +249,8 @@ export function loadExpenses(): Expense[] {
   if (!isBrowser()) return [];
   try {
     const raw = localStorage.getItem(EXPENSES_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
@@ -271,7 +276,8 @@ export function loadSettings(): AppSettings {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(DEFAULT_SETTINGS));
       return DEFAULT_SETTINGS;
     }
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    return (parsed && typeof parsed === "object") ? { ...DEFAULT_SETTINGS, ...parsed } : DEFAULT_SETTINGS;
   } catch {
     return DEFAULT_SETTINGS;
   }
