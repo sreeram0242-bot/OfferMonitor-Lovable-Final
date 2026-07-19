@@ -53,7 +53,7 @@ function Dashboard() {
         <div>
           <h1 className="font-display text-4xl leading-tight text-foreground">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {streakOn ? "6 consecutive visits · Free item up to ₹79 on day 7" : "Billing & customer tracking"}
+            {streakOn ? "6 consecutive visits · Free item on day 7" : "Billing & customer tracking"}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -251,7 +251,7 @@ function SettingsModal({
           />
           <Toggle
             label="6-day streak offer"
-            hint={s.requireCustomerDetails ? "7th day free item up to ₹79" : "Enable customer details first"}
+            hint={s.requireCustomerDetails ? "7th day free item" : "Enable customer details first"}
             value={s.streakOfferEnabled}
             disabled={!s.requireCustomerDetails}
             onChange={(v) => persist({ ...s, streakOfferEnabled: v })}

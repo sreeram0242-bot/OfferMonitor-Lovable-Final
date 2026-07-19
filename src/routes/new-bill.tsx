@@ -68,7 +68,7 @@ function NewBill() {
 
   const streakOn = settings?.streakOfferEnabled ?? false;
   const eligibleForFree = streakOn && loyalty?.eligibleToday && date === todayISO();
-  const freeItemOptions = menu.filter((m) => m.price <= FREE_ITEM_MAX_PRICE);
+  const freeItemOptions = menu;
 
   const filteredMenu = menu.filter(
     (m) =>
@@ -217,7 +217,7 @@ function NewBill() {
                 Streak: {loyalty.streak} day{loyalty.streak !== 1 ? "s" : ""}
               </div>
               {eligibleForFree ? (
-                <div className="mt-1 font-bold text-accent">🎁 FREE item (up to ₹{FREE_ITEM_MAX_PRICE})!</div>
+                <div className="mt-1 font-bold text-accent">🎁 FREE item!</div>
               ) : (
                 <div className="mt-1 text-muted-foreground">
                   {6 - Math.min(loyalty.streak, 6)} more consecutive day

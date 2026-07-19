@@ -25,7 +25,7 @@ const BILLS_KEY = "ek_bills_v1";
 const EXPENSES_KEY = "ek_expenses_v1";
 const SETTINGS_KEY = "ek_settings_v1";
 
-export const FREE_ITEM_MAX_PRICE = 79;
+
 export const STREAK_TARGET = 6;
 
 export type AppSettings = {
