@@ -145,10 +145,15 @@ function Sidebar({ onNavigate, hotelName }: { onNavigate?: () => void; hotelName
         ))}
       </nav>
       <div className="border-t border-border px-6 py-4 text-[11px] leading-relaxed text-muted-foreground">
-        <div className="font-medium text-foreground">Contact</div>
-        <div className="mt-1">9025898839</div>
-        <div>8438260344</div>
-        <div className="mt-2">80 feet road, opp. BOB Bank, Karur</div>
+        <div className="font-medium text-foreground">Help</div>
+        <div className="mt-2 space-y-1">
+          <div>Sreeram (Developer)</div>
+          <div className="flex items-center gap-1.5"><span className="text-sm">📞</span> <a href="tel:9629661668" className="hover:underline font-bold text-foreground">9629661668</a></div>
+        </div>
+        <div className="mt-4 space-y-0.5">
+          <div>Made by Clouddine</div>
+          <a href="https://www.clouddine.store" target="_blank" rel="noopener noreferrer" className="inline-block text-primary hover:underline font-bold">www.clouddine.store</a>
+        </div>
       </div>
     </aside>
   );
