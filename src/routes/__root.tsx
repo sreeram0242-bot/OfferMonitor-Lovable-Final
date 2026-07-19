@@ -162,7 +162,7 @@ function Sidebar({ onNavigate, hotelName }: { onNavigate?: () => void; hotelName
 
 function BottomNav() {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-card md:hidden pb-12">
+    <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-card md:hidden">
       {NAV_ITEMS.map((item) => (
         <Link
           key={item.to}
@@ -223,7 +223,7 @@ function RootComponent() {
           </header>
 
           <main
-            className="min-w-0 flex-1 overflow-x-hidden px-2 py-3 pb-[110px] sm:px-4 sm:py-6 sm:pb-[110px] md:px-8 md:py-8 md:pb-8"
+            className="min-w-0 flex-1 overflow-x-hidden px-2 py-3 pb-[70px] sm:px-4 sm:py-6 sm:pb-[70px] md:px-8 md:py-8 md:pb-8"
             onPointerDown={() => { setMobileOpen(false); setDesktopOpen(false); }}
           >
             <div className="mx-auto w-full min-w-0 max-w-6xl"><Outlet /></div>
