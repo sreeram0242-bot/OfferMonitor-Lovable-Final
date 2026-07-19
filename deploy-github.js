@@ -4,8 +4,28 @@ import path from 'path';
 
 const distPath = '.output/public';
 
+console.log('Building project for GitHub Pages...');
+
+const viteConfigPath = path.join(process.cwd(), 'vite.config.ts');
+const originalViteConfig = fs.readFileSync(viteConfigPath, 'utf-8');
+
+try {
+    // Inject the base path for GitHub Pages
+    const newConfig = originalViteConfig.replace('vite: {}', `vite: { base: '/OfferMonitor-Lovable-Final/' }`);
+    fs.writeFileSync(viteConfigPath, newConfig);
+
+    // Run the build
+    execSync('npm run build', { stdio: 'inherit' });
+} catch (error) {
+    console.error('Build failed!', error);
+    process.exit(1);
+} finally {
+    // Restore original config so Lovable stays happy!
+    fs.writeFileSync(viteConfigPath, originalViteConfig);
+}
+
 if (!fs.existsSync(distPath)) {
-    console.error(`Error: Build directory ${distPath} does not exist. Please run npm run build first.`);
+    console.error(`Error: Build directory ${distPath} does not exist even after build.`);
     process.exit(1);
 }
 
