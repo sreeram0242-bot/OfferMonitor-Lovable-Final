@@ -285,10 +285,15 @@ export function computeLoyalty(bills: Bill[], phone: string) {
     return { streak: 0, lastVisit: null as string | null, eligibleToday: false, visitDates: [] as string[] };
   }
   const lastVisit = dates[dates.length - 1];
-  let streak = 1;
-  for (let i = dates.length - 2; i >= 0; i--) {
-    if (dates[i] === addDaysISO(dates[i + 1], -1)) streak++;
-    else break;
+  let streak = 0;
+  for (let i = dates.length - 1; i >= 0; i--) {
+    const d = dates[i];
+    if (i < dates.length - 1) {
+      if (d !== addDaysISO(dates[i + 1], -1)) break;
+    }
+    streak++;
+    const claimedFree = custBills.some((b) => b.date === d && !!b.freeItem);
+    if (claimedFree) break;
   }
   const today = todayISO();
   let eligibleToday = false;
