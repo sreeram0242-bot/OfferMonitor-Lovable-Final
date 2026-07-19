@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import {
   addBill,
   computeLoyalty,
-  FREE_ITEM_MAX_PRICE,
   loadBills,
   loadMenu,
   loadCategories,
@@ -68,7 +67,16 @@ function NewBill() {
 
   const streakOn = settings?.streakOfferEnabled ?? false;
   const eligibleForFree = streakOn && loyalty?.eligibleToday && date === todayISO();
-  const freeItemOptions = menu;
+  const freeItemOptionsGrouped = useMemo(() => {
+    const groups = new Map<string, MenuItem[]>();
+    for (const m of menu) {
+      const c = getCategoryOf(m);
+      if (!groups.has(c)) groups.set(c, []);
+      groups.get(c)!.push(m);
+    }
+    // Sort categories alphabetically or just use the insertion order
+    return Array.from(groups.entries());
+  }, [menu]);
 
   const filteredMenu = menu.filter(
     (m) =>
@@ -279,8 +287,12 @@ function NewBill() {
                 onChange={(e) => setFreeItemId(e.target.value)}
               >
                 <option value="">-- Skip / choose later --</option>
-                {freeItemOptions.map((m) => (
-                  <option key={m.id} value={m.id}>{m.name} (₹{m.price})</option>
+                {freeItemOptionsGrouped.map(([cat, items]) => (
+                  <optgroup key={cat} label={cat}>
+                    {items.map((m) => (
+                      <option key={m.id} value={m.id}>{m.name} (₹{m.price})</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
