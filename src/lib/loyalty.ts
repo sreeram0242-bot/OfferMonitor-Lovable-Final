@@ -367,7 +367,9 @@ export function newId() {
 }
 
 export function nextOrderNumberForDate(bills: Bill[], date: string): number {
-  return bills.filter((b) => b.date === date).length + 1;
+  const dayBills = bills.filter((b) => b.date === date);
+  if (dayBills.length === 0) return 1;
+  return Math.max(...dayBills.map((b) => b.orderNo || 0)) + 1;
 }
 
 // Backup / restore
