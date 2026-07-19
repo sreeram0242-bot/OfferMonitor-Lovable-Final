@@ -160,6 +160,15 @@ function BillsPage() {
                                 <span className="shrink-0 tabular-nums">₹{it.price * it.qty}</span>
                               </div>
                             ))}
+                            {b.freeItem && (
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="min-w-0 truncate">
+                                  {b.freeItem.name} <span className="text-muted-foreground">× 1</span>
+                                  <span className="ml-1 rounded bg-accent/20 px-1 text-[10px] font-bold text-accent">STREAK FREE</span>
+                                </span>
+                                <span className="shrink-0 tabular-nums line-through opacity-50">₹{b.freeItem.price}</span>
+                              </div>
+                            )}
                             {b.phone && (
                               <Link to="/customer/$phone" params={{ phone: b.phone }} className="mt-1 inline-block text-xs text-primary hover:underline">View customer →</Link>
                             )}

@@ -68,8 +68,16 @@ function RevenuePage() {
   const filteredExpenses = expenses.filter((e) => inRange(e.date, range));
 
   const revenue = filteredBills.reduce((s, b) => s + b.total, 0);
+  const menuCostMap = new Map(loadMenu().map((m) => [m.name, m.costPrice ?? 0]));
+
   const totalCogs = filteredBills.reduce(
-    (s, b) => s + b.items.reduce((x, it) => x + (it.costPrice ?? 0) * it.qty, 0),
+    (s, b) => {
+      let cogs = b.items.reduce((x, it) => x + (it.costPrice ?? 0) * it.qty, 0);
+      if (b.freeItem) {
+        cogs += menuCostMap.get(b.freeItem.name) ?? 0;
+      }
+      return s + cogs;
+    },
     0,
   );
   const totalExpenses = filteredExpenses.reduce((s, e) => s + e.amount, 0);
@@ -79,6 +87,7 @@ function RevenuePage() {
   const itemQty = new Map<string, number>();
   for (const b of filteredBills) {
     for (const it of b.items) itemQty.set(it.name, (itemQty.get(it.name) ?? 0) + it.qty);
+    if (b.freeItem) itemQty.set(b.freeItem.name, (itemQty.get(b.freeItem.name) ?? 0) + 1);
   }
   const top10 = Array.from(itemQty.entries())
     .map(([name, qty]) => ({ name, qty }))
