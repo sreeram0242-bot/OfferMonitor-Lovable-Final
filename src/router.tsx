@@ -6,7 +6,7 @@ export const getRouter = () => {
   const queryClient = new QueryClient();
 
   const rawBase = import.meta.env.BASE_URL || '/';
-  const routerBase = rawBase === '/' ? '/' : rawBase.replace(/\\/$/, '');
+  const routerBase = rawBase === '/' ? '/' : (rawBase.endsWith('/') ? rawBase.slice(0, -1) : rawBase);
 
   const router = createRouter({
     routeTree,
