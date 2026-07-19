@@ -328,11 +328,19 @@ export function getCustomers(bills: Bill[]): CustomerSummary[] {
   for (const [phone, custBills] of byPhone) {
     const dates = Array.from(new Set(custBills.map((x) => x.date))).sort();
     const lastVisit = dates[dates.length - 1] ?? null;
-    let streak = dates.length ? 1 : 0;
-    for (let i = dates.length - 2; i >= 0; i--) {
-      if (dates[i] === addDaysISO(dates[i + 1], -1)) streak++;
-      else break;
+    let streak = 0;
+    if (dates.length > 0) {
+      for (let i = dates.length - 1; i >= 0; i--) {
+        const d = dates[i];
+        if (i < dates.length - 1) {
+          if (d !== addDaysISO(dates[i + 1], -1)) break;
+        }
+        streak++;
+        const claimedFree = custBills.some((b) => b.date === d && !!b.freeItem);
+        if (claimedFree) break;
+      }
     }
+
     const today = todayISO();
     let eligibleToday = false;
     if (lastVisit === addDaysISO(today, -1) && streak >= STREAK_TARGET) eligibleToday = true;
