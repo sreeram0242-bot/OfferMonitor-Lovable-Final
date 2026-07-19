@@ -6,6 +6,11 @@ const distPath = '.output/public';
 
 console.log('Building project for GitHub Pages...');
 
+// Prevent EBUSY errors on Windows by forcefully deleting the old .git folder before build
+try {
+    fs.rmSync(path.join(distPath, '.git'), { recursive: true, force: true });
+} catch (e) {}
+
 const viteConfigPath = path.join(process.cwd(), 'vite.config.ts');
 const originalViteConfig = fs.readFileSync(viteConfigPath, 'utf-8');
 
