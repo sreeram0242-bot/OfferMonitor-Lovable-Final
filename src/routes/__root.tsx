@@ -156,10 +156,7 @@ function Sidebar({ onNavigate, hotelName }: { onNavigate?: () => void; hotelName
 
 function BottomNav() {
   return (
-    <nav 
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-card md:hidden"
-      style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 40px)' }}
-    >
+    <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-card md:hidden pb-12">
       {NAV_ITEMS.map((item) => (
         <Link
           key={item.to}
