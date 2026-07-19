@@ -135,7 +135,7 @@ function NewBill() {
       eligibleForFree && freeItemId
         ? (() => {
             const m = menu.find((x) => x.id === freeItemId);
-            return m ? { name: m.name, price: m.price } : null;
+            return m ? { name: m.name, price: m.price, costPrice: m.costPrice } : null;
           })()
         : null;
 

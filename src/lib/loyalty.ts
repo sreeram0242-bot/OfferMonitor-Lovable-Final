@@ -64,7 +64,7 @@ export type Bill = {
   gstAmount?: number;
   gstPercentage?: number;
   total: number;
-  freeItem?: { name: string; price: number } | null;
+  freeItem?: { name: string; price: number; costPrice?: number } | null;
   tableName?: string;
   orderNo?: number;
 };

@@ -36,7 +36,11 @@ function BillsPage() {
     } else if (range === "custom") {
       list = list.filter((b) => b.date >= from && b.date <= to);
     }
-    return [...list].sort((a, b) => (b.date + String(b.orderNo ?? 0)).localeCompare(a.date + String(a.orderNo ?? 0)));
+    return [...list].sort((a, b) => {
+      const dateCmp = b.date.localeCompare(a.date);
+      if (dateCmp !== 0) return dateCmp;
+      return (b.orderNo ?? 0) - (a.orderNo ?? 0);
+    });
   }, [bills, range, from, to]);
 
   function onDelete(id: string) {

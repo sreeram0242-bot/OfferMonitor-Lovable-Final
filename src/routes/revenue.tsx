@@ -74,7 +74,7 @@ function RevenuePage() {
     (s, b) => {
       let cogs = b.items.reduce((x, it) => x + (it.costPrice ?? 0) * it.qty, 0);
       if (b.freeItem) {
-        cogs += menuCostMap.get(b.freeItem.name) ?? 0;
+        cogs += b.freeItem.costPrice ?? menuCostMap.get(b.freeItem.name) ?? 0;
       }
       return s + cogs;
     },
