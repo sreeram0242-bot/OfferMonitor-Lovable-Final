@@ -6,7 +6,7 @@ const distPath = '.output/public';
 
 console.log('Building project for GitHub Pages...');
 
-// Prevent EBUSY errors on Windows by forcefully deleting the old .git folder before build
+// Safely try to clean any leftover .git folders to release locks
 try {
     fs.rmSync(path.join(distPath, '.git'), { recursive: true, force: true });
 } catch (e) {}
@@ -15,17 +15,13 @@ const viteConfigPath = path.join(process.cwd(), 'vite.config.ts');
 const originalViteConfig = fs.readFileSync(viteConfigPath, 'utf-8');
 
 try {
-    // Inject the base path for GitHub Pages
     const newConfig = originalViteConfig.replace('vite: {}', `vite: { base: '/OfferMonitor-Lovable-Final/' }`);
     fs.writeFileSync(viteConfigPath, newConfig);
-
-    // Run the build
     execSync('npm run build', { stdio: 'inherit' });
 } catch (error) {
     console.error('Build failed!', error);
     process.exit(1);
 } finally {
-    // Restore original config so Lovable stays happy!
     fs.writeFileSync(viteConfigPath, originalViteConfig);
 }
 
@@ -36,29 +32,36 @@ if (!fs.existsSync(distPath)) {
 
 fs.writeFileSync(path.join(distPath, '.nojekyll'), '');
 
-console.log('Deploying to GitHub Pages...');
+console.log('Deploying to GitHub Pages using plumbing to avoid file locks...');
 
 try {
-    // Initialize git in the build folder and push it directly to the gh-pages branch
-    execSync('git init', { cwd: distPath, stdio: 'inherit' });
-    execSync('git add .', { cwd: distPath, stdio: 'inherit' });
+    // 1. Create a temporary index file
+    const tempIndex = '.git/temp_index';
     
-    try {
-        execSync('git commit -m "Deploy to GitHub Pages"', { cwd: distPath, stdio: 'inherit' });
-    } catch (e) {
-        // Ignore error if nothing to commit
-    }
+    // 2. Add the public folder to the temporary index
+    execSync(`git --work-tree=${distPath} add --all`, { 
+        env: { ...process.env, GIT_INDEX_FILE: tempIndex },
+        stdio: 'inherit' 
+    });
     
-    // Copy the root .git/config to the output .git/config so we inherit credentials and don't hang!
-    try {
-        fs.copyFileSync('.git/config', path.join(distPath, '.git/config'));
-    } catch (e) {
-        console.error("Failed to copy git config, push might hang.");
-    }
+    // 3. Write a tree from the index
+    const tree = execSync('git write-tree', { 
+        env: { ...process.env, GIT_INDEX_FILE: tempIndex },
+        encoding: 'utf-8' 
+    }).trim();
     
-    execSync('git push -f origin master:gh-pages', { cwd: distPath, stdio: 'inherit' });
+    // 4. Create a commit
+    const commit = execSync(`git commit-tree ${tree} -m "Deploy to GitHub Pages"`, { 
+        encoding: 'utf-8' 
+    }).trim();
+    
+    // 5. Push the commit to the gh-pages branch forcefully!
+    execSync(`git push -f origin ${commit}:refs/heads/gh-pages`, { stdio: 'inherit' });
+    
+    // 6. Cleanup temp index
+    fs.unlinkSync(tempIndex);
     
     console.log('\\n✅ Successfully deployed to GitHub Pages! It will be live at https://sreeram0242-bot.github.io/OfferMonitor-Lovable-Final/ in a minute.');
 } catch (error) {
-    console.error('\\n❌ Deployment failed. Please ensure you are logged into GitHub.');
+    console.error('\\n❌ Deployment failed. Please ensure you are logged into GitHub and try again.');
 }
