@@ -24,7 +24,14 @@ try {
         // Ignore error if nothing to commit
     }
     
-    execSync('git push -f https://github.com/sreeram0242-bot/OfferMonitor-Lovable-Final.git master:gh-pages', { cwd: distPath, stdio: 'inherit' });
+    // Copy the root .git/config to the output .git/config so we inherit credentials and don't hang!
+    try {
+        fs.copyFileSync('.git/config', path.join(distPath, '.git/config'));
+    } catch (e) {
+        console.error("Failed to copy git config, push might hang.");
+    }
+    
+    execSync('git push -f origin master:gh-pages', { cwd: distPath, stdio: 'inherit' });
     
     console.log('\\n✅ Successfully deployed to GitHub Pages! It will be live at https://sreeram0242-bot.github.io/OfferMonitor-Lovable-Final/ in a minute.');
 } catch (error) {
