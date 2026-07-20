@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/new-bill-B8XpYaZ7.js","assets/loyalty-DUwNRW4F.js","assets/preload-helper-Dj8D-Hv5.js","assets/link-CtOR2Cxh.js","assets/dist-Dfc5hcVB.js"])))=>i.map(i=>d[i]);
+import{n as e,r as t,t as n}from"./preload-helper-Dj8D-Hv5.js";var r=t(`/new-bill`)({validateSearch:e=>({editId:e.editId}),head:()=>({meta:[{title:`New Bill — Engineers Kitchen`}]}),component:e(()=>n(()=>import(`./new-bill-B8XpYaZ7.js`),__vite__mapDeps([0,1,2,3,4])),`component`)});export{r as t};

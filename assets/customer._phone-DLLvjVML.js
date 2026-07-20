@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/customer._phone-g6QTC5pr.js","assets/loyalty-DUwNRW4F.js","assets/link-CtOR2Cxh.js","assets/preload-helper-Dj8D-Hv5.js","assets/routes-CuBENWGk.js"])))=>i.map(i=>d[i]);
+import{n as e,r as t,t as n}from"./preload-helper-Dj8D-Hv5.js";var r=t(`/customer/$phone`)({head:()=>({meta:[{title:`Customer — Engineers Kitchen`}]}),component:e(()=>n(()=>import(`./customer._phone-g6QTC5pr.js`),__vite__mapDeps([0,1,2,3,4])),`component`)});export{r as t};
