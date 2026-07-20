@@ -218,6 +218,15 @@ export function addBill(bill: Bill) {
   saveBills(all);
 }
 
+export function updateBill(id: string, updated: Bill) {
+  const all = loadBills();
+  const idx = all.findIndex((b) => b.id === id);
+  if (idx !== -1) {
+    all[idx] = updated;
+    saveBills(all);
+  }
+}
+
 export function loadDeletedBills(): DeletedBill[] {
   if (!isBrowser()) return [];
   try {

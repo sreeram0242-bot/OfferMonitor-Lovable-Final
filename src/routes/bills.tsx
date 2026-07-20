@@ -113,7 +113,10 @@ function BillsPage() {
                     {b.phone && (
                       <Link to="/customer/$phone" params={{ phone: b.phone }} className="mt-1 block text-xs text-primary hover:underline">View customer →</Link>
                     )}
-                    <button onClick={() => onDelete(b.id)} className="mt-1 text-xs text-destructive hover:underline">🗑 Delete bill</button>
+                    <div className="mt-1 flex items-center gap-4">
+                      <Link to="/new-bill" search={{ editId: b.id }} className="text-xs text-primary hover:underline">✏️ Edit bill</Link>
+                      <button onClick={() => onDelete(b.id)} className="text-xs text-destructive hover:underline">🗑 Delete bill</button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -147,7 +150,8 @@ function BillsPage() {
                       </td>
                       <td className="whitespace-nowrap">{b.tableName ?? "—"}</td>
                       <td className="text-right whitespace-nowrap font-bold text-accent">₹{b.total}</td>
-                      <td className="text-right">
+                      <td className="text-right flex items-center justify-end gap-3 h-full pt-[14px]">
+                        <Link to="/new-bill" search={{ editId: b.id }} onClick={(e) => e.stopPropagation()} className="text-primary hover:underline" aria-label="Edit">✏️</Link>
                         <button onClick={(e) => { e.stopPropagation(); onDelete(b.id); }} className="text-destructive hover:underline" aria-label="Delete">🗑</button>
                       </td>
                     </tr>

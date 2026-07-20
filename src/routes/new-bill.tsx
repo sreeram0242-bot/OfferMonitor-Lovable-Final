@@ -3,6 +3,7 @@ import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
   addBill,
+  updateBill,
   computeLoyalty,
   loadBills,
   loadMenu,
@@ -18,12 +19,17 @@ import {
 } from "@/lib/loyalty";
 
 export const Route = createFileRoute("/new-bill")({
+  validateSearch: (search: Record<string, unknown>): { editId?: string } => {
+    return { editId: search.editId as string | undefined };
+  },
   head: () => ({ meta: [{ title: "New Bill — Engineers Kitchen" }] }),
   component: NewBill,
 });
 
 function NewBill() {
   const navigate = useNavigate();
+  const searchParams = Route.useSearch();
+  const editId = searchParams.editId;
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [settings, setSettings] = useState<AppSettings | null>(null);
@@ -37,6 +43,9 @@ function NewBill() {
   const [tableName, setTableName] = useState<string>("");
   const [orderNo, setOrderNo] = useState<number>(1);
   const [freeMode, setFreeMode] = useState<Set<string>>(new Set());
+  const [savedGstPct, setSavedGstPct] = useState<number | null>(null);
+  const [originalDate, setOriginalDate] = useState<string | null>(null);
+  const [originalFreeItem, setOriginalFreeItem] = useState<{ name: string; price: number; costPrice?: number } | null>(null);
 
 
   useEffect(() => {
@@ -44,13 +53,43 @@ function NewBill() {
     setAllCategories(loadCategories());
     const s = loadSettings();
     setSettings(s);
-    if (s.tablesEnabled && s.tableNames.length > 0) setTableName(s.tableNames[0]);
-    setOrderNo(nextOrderNumberForDate(loadBills(), todayISO()));
-  }, []);
+    
+    if (editId) {
+      const existingBill = loadBills().find(b => b.id === editId);
+      if (existingBill) {
+        setName(existingBill.name);
+        setPhone(existingBill.phone);
+        setDate(existingBill.date);
+        setOriginalDate(existingBill.date);
+        setItems(existingBill.items);
+        setSavedGstPct(existingBill.gstPercentage ?? 0);
+        
+        const mList = loadMenu();
+        const freeNames = existingBill.items.filter(i => i.isFree).map(i => i.name);
+        setFreeMode(new Set(mList.filter(m => freeNames.includes(m.name)).map(m => m.id)));
+
+        if (existingBill.tableName) setTableName(existingBill.tableName);
+        if (existingBill.orderNo) setOrderNo(existingBill.orderNo);
+        if (existingBill.freeItem) {
+          setOriginalFreeItem(existingBill.freeItem);
+          const m = mList.find(x => x.name === existingBill.freeItem?.name);
+          if (m) setFreeItemId(m.id);
+        }
+      }
+    } else {
+      if (s.tablesEnabled && s.tableNames.length > 0) setTableName(s.tableNames[0]);
+      setOrderNo(nextOrderNumberForDate(loadBills(), todayISO()));
+    }
+  }, [editId]);
 
   useEffect(() => {
-    setOrderNo(nextOrderNumberForDate(loadBills(), date));
-  }, [date]);
+    if (editId && date === originalDate) {
+      const b = loadBills().find(x => x.id === editId);
+      if (b) setOrderNo(b.orderNo ?? nextOrderNumberForDate(loadBills(), date));
+    } else {
+      setOrderNo(nextOrderNumberForDate(loadBills(), date));
+    }
+  }, [date, editId, originalDate]);
 
   useEffect(() => {
     if (phone.length >= 4) {
@@ -66,7 +105,7 @@ function NewBill() {
   }, [phone]);
 
   const streakOn = settings?.streakOfferEnabled ?? false;
-  const eligibleForFree = streakOn && loyalty?.eligibleToday && date === todayISO();
+  const eligibleForFree = (streakOn && loyalty?.eligibleToday && date === todayISO()) || !!originalFreeItem;
   const freeItemOptionsGrouped = useMemo(() => {
     const groups = new Map<string, MenuItem[]>();
     for (const m of menu) {
@@ -92,7 +131,7 @@ function NewBill() {
   const categories = ["All", ...orderedCats];
 
   const subtotal = items.reduce((s, it) => s + it.price * it.qty, 0);
-  const gstPct = settings?.gstPercentage ?? 0;
+  const gstPct = savedGstPct !== null ? savedGstPct : (settings?.gstPercentage ?? 0);
   const gstAmount = Math.round(subtotal * (gstPct / 100));
   const total = subtotal + gstAmount;
 
@@ -141,8 +180,8 @@ function NewBill() {
           })()
         : null;
 
-    addBill({
-      id: newId(),
+    const billData = {
+      id: editId || newId(),
       phone: phone.trim(),
       name: name.trim(),
       date,
@@ -154,8 +193,16 @@ function NewBill() {
       freeItem,
       tableName: settings.tablesEnabled ? tableName : undefined,
       orderNo,
-    });
-    toast.success(`Bill #${orderNo} saved · ₹${total}`);
+    };
+
+    if (editId) {
+      updateBill(editId, billData);
+      toast.success(`Bill #${orderNo} updated`);
+    } else {
+      addBill(billData);
+      toast.success(`Bill #${orderNo} saved · ₹${total}`);
+    }
+
     if (phone.trim()) navigate({ to: "/customer/$phone", params: { phone: phone.trim() } });
     else navigate({ to: "/bills" });
   }
@@ -168,7 +215,9 @@ function NewBill() {
       <div className="min-w-0 space-y-2 sm:space-y-3 md:space-y-4">
         <div className="card-menu min-w-0 p-2 sm:p-3 md:p-5">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-            <h2 className="font-display text-lg text-primary sm:text-xl md:text-2xl">Order #{orderNo}</h2>
+            <h2 className="font-display text-lg text-primary sm:text-xl md:text-2xl">
+              {editId ? `Edit Order #${orderNo}` : `Order #${orderNo}`}
+            </h2>
             <div className="text-xs text-muted-foreground">{date}</div>
           </div>
 
@@ -300,7 +349,9 @@ function NewBill() {
             </div>
           )}
 
-          <button onClick={save} className="btn-accent mt-3 w-full text-sm sm:mt-5 sm:text-base md:text-lg">💾 Save Bill · ₹{total}</button>
+          <button onClick={save} className="btn-accent mt-3 w-full text-sm sm:mt-5 sm:text-base md:text-lg">
+            {editId ? `💾 Update Bill · ₹${total}` : `💾 Save Bill · ₹${total}`}
+          </button>
         </div>
       </div>
 
