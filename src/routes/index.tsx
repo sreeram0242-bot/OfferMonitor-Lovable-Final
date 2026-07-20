@@ -244,8 +244,8 @@ function SettingsModal({
           </label>
 
           <Toggle
-            label="Require customer details"
-            hint="Name & phone mandatory on New Bill"
+            label="Enable customer details"
+            hint="Show name & phone fields (optional)"
             value={s.requireCustomerDetails}
             onChange={(v) => persist({ ...s, requireCustomerDetails: v })}
           />

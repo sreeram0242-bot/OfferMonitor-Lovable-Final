@@ -123,15 +123,11 @@ function NewBill() {
   function save() {
     if (!settings) return;
     if (items.length === 0) { toast.error("Add at least one item."); return; }
-    if (settings.requireCustomerDetails) {
-      if (!name.trim() || !phone.trim()) {
-        toast.error("Name and phone are required.");
-        return;
-      }
-      if (phone.trim().length !== 10) {
-        toast.error("Phone number must be exactly 10 digits.");
-        return;
-      }
+    // Customer details are now ALWAYS optional to respect privacy.
+    // If they do provide a phone number to claim the streak, ensure it's valid.
+    if (phone.trim() && phone.trim().length !== 10) {
+      toast.error("Phone number must be exactly 10 digits if provided.");
+      return;
     }
     if (settings.tablesEnabled && settings.tableNames.length > 0 && !tableName) {
       toast.error("Select a table.");
@@ -178,7 +174,7 @@ function NewBill() {
 
           <div className="mt-2 grid gap-2 sm:mt-3 sm:gap-3">
             <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Phone {settings.requireCustomerDetails && <span className="text-destructive">*</span>}
+              Phone <span className="text-muted-foreground/50 lowercase tracking-normal font-normal">(optional)</span>
               <input
                 className="input-field mt-1"
                 value={phone}
@@ -189,7 +185,7 @@ function NewBill() {
               />
             </label>
             <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Name {settings.requireCustomerDetails && <span className="text-destructive">*</span>}
+              Name <span className="text-muted-foreground/50 lowercase tracking-normal font-normal">(optional)</span>
               <input
                 className="input-field mt-1"
                 value={name}
