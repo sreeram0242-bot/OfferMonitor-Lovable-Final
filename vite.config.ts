@@ -7,8 +7,7 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
-  vite: { base: '/OfferMonitor-Lovable-Final/' },
-  nitro: { output: { dir: '.temp-output', publicDir: '.temp-output/public' } },
+  vite: {},
   tanstackStart: {
     server: {
       preset: 'github-pages',
